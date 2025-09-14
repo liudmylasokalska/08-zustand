@@ -5,8 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
-import NoteForm from "@/components/NoteForm/NoteForm";
-import Modal from "@/components/Modal/Modal";
+import Link from "next/link";
 import NoteList from "@/components/NoteList/NoteList";
 import Loader from "@/app/loading";
 import { fetchNotes, FetchNotesResponse } from "@/lib/api";
@@ -36,26 +35,20 @@ export default function NotesClient({ tag }: NotesClientProps) {
 
   const handlePageChange = (selectedPage: number) => setPage(selectedPage);
 
-  const toggleModal = () => setIsModalOpen((prev) => !prev);
-
-  const notes = data?.notes ?? [];
-  const totalPages = data?.totalPages ?? 0;
-  const hasNotes = notes.length > 0;
-
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
         <SearchBox value={search} onChange={handleSearchChange} />
-        {totalPages > 1 && (
+        {data && data.totalPages > 1 && (
           <Pagination
-            pageCount={totalPages}
+            pageCount={data.totalPages}
             currentPage={page}
             onPageChange={handlePageChange}
           />
         )}
-        <button className={css.button} onClick={toggleModal}>
+        <Link className={css.button} href="/notes/action/create">
           Create note +
-        </button>
+        </Link>
       </header>
 
       <h2 className={css.title}>
@@ -65,7 +58,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
       {isFetching && <Loader />}
       {isError && <p>Error: {(error as Error)?.message}</p>}
 
-      {!isFetching && !hasNotes && (
+      {data && data.notes.length === 0 && !isFetching && (
         <p className={css.notfound}>
           {debouncedSearch
             ? `No notes found for "${debouncedSearch}"`
@@ -73,13 +66,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
         </p>
       )}
 
-      {hasNotes && <NoteList notes={notes} />}
-
-      {isModalOpen && (
-        <Modal onClose={toggleModal}>
-          <NoteForm onCancel={toggleModal} />
-        </Modal>
-      )}
+      {data && data.notes.length > 0 && <NoteList notes={data.notes} />}
     </div>
   );
 }
