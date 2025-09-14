@@ -4,10 +4,6 @@ import type { Note } from "../types/note";
 const BASE_URL = "https://notehub-public.goit.study/api/notes";
 const myKey = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
 
-if (!myKey) {
-  throw new Error("API token is missing. Set NEXT_PUBLIC_NOTEHUB_TOKEN");
-}
-
 export interface FetchNotesResponse {
   notes: Note[];
   totalPages: number;
